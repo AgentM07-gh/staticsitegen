@@ -25,3 +25,4 @@ class TextNode:
     def __repr__(self):
         cls = self.__class__.__name__
         return f"{cls}({self.text}, {self.text_type.value}, {self.url})"
+    

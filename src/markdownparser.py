@@ -31,58 +31,6 @@ def extract_markdown_links(text):
     link_tups = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     return link_tups
 
-'''
-def split_nodes_image(old_nodes):
-    new_nodes = []
-    pattern = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
-    for old_node in old_nodes:
-        if not re.search(pattern, old_node.text) and old_node.text:
-            txt_node = TextNode(old_node.text, TextType.TEXT)
-            new_nodes.append(txt_node)
-            continue
-        txt_str = old_node.text
-        img_tups = extract_markdown_images(txt_str)
-        for image in img_tups:
-            sections = txt_str.split(f"![{image[0]}]({image[1]})", 1)
-            if len(sections) > 1:
-                if sections[0]:
-                    txt_node = TextNode(sections[0], TextType.TEXT)
-                    new_nodes.append(txt_node)
-                    txt_str = sections[1]
-            img_node = TextNode(image[0], TextType.IMAGE, image[1])
-            new_nodes.append(img_node)
-            continue
-        if txt_str.strip():
-            txt_node = TextNode(txt_str, TextType.TEXT)
-            new_nodes.append(txt_node)
-    return new_nodes
-
-def split_nodes_link(old_nodes):
-    new_nodes = []
-    pattern = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
-    for old_node in old_nodes:
-        if not re.search(pattern, old_node.text) and old_node.text:
-            txt_node = TextNode(old_node.text, TextType.TEXT)
-            new_nodes.append(txt_node)
-            continue
-        txt_str = old_node.text
-        lnk_tups = extract_markdown_links(txt_str)
-        for link in lnk_tups:
-            sections = txt_str.split(f"[{link[0]}]({link[1]})", 1)
-            if len(sections) > 1:
-                if sections[0]:
-                    txt_node = TextNode(sections[0], TextType.TEXT)
-                    new_nodes.append(txt_node)
-                    txt_str = sections[1]
-            lnk_node = TextNode(link[0], TextType.LINK, link[1])
-            new_nodes.append(lnk_node)
-            continue
-        if txt_str.strip():
-            txt_node = TextNode(txt_str, TextType.TEXT)
-            new_nodes.append(txt_node)
-    return new_nodes    
-
-'''
 
 def split_nodes_image(old_nodes):
     new_nodes = []
@@ -136,3 +84,25 @@ def split_nodes_link(old_nodes):
         if original_text != "":
             new_nodes.append(TextNode(original_text, TextType.TEXT))
     return new_nodes
+
+def text_to_textnodes(text):
+    start_node  = TextNode(text, TextType.TEXT)
+    new_nodes=[start_node]
+    new_nodes = split_nodes_delimiter(new_nodes, "_", TextType.ITALIC)
+    new_nodes = split_nodes_delimiter(new_nodes, "**", TextType.BOLD)
+    new_nodes = split_nodes_delimiter(new_nodes, "`", TextType.CODE)
+    new_nodes = split_nodes_image(new_nodes)
+    new_nodes = split_nodes_link(new_nodes)
+    return new_nodes
+
+def markdown_to_blocks(markdown):
+    split_doc = markdown.split("\n\n")
+    block_list = []
+    for blocks in split_doc:
+        line = blocks.strip()
+        if line != "":
+            block_list.append(line)
+    return block_list
+
+
+
